@@ -1,3 +1,4 @@
+import calendar
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -10,8 +11,7 @@ df = pd.read_csv('fcc-forum-pageviews.csv', parse_dates=True, index_col='date')
 # Clean data
 df = df[
     (df['value'] <= df['value'].quantile(0.975))
-    & (df['value'] > df['value'].quantile(0.025))]
-
+    & (df['value'] >= df['value'].quantile(0.025))]
 
 def draw_line_plot():
     # Draw line plot
@@ -28,13 +28,21 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
-    df_bar = None
+    df_bar = df.copy()
+    df_bar['year'] = df_bar.index.year
+    df_bar['month'] = df_bar.index.month_name()
+    df_bar['month_i'] = df_bar.index.month
+    df_bar = df_bar.groupby(['year', 'month', 'month_i']).mean()
+    df_bar.sort_values(by='month_i', inplace=True)
+    df_bar = df_bar.reset_index()
+    df_bar = df_bar.drop(['month_i'], axis=1)
+    df_bar = df_bar.pivot('year', 'month', 'value')
+    df_bar.columns = [calendar.month_name[i+1] for i in range(12)]
 
     # Draw bar plot
-
-
-
-
+    ax = df_bar.plot.bar(figsize=(8, 7), xlabel='Years', ylabel='Average Page Views')
+    # ax.legend([calendar.month_name[i+1] for i in range(12)], title='Months')
+    fig = ax.get_figure()
 
     # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
