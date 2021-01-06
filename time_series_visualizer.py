@@ -51,10 +51,6 @@ def draw_bar_plot():
 def draw_box_plot():
     # Prepare data for box plots (this part is done!)
     df_box = df.copy()
-    # df_box.reset_index(inplace=True)
-    # df_box['year'] = [d.year for d in df_box.date]
-    
-
     df_box['year'] = df_box.index.year
     df_box['month'] = [d.strftime('%b') for d in df_box.index]
     df_box['month_i'] = df_box.index.month
@@ -63,7 +59,6 @@ def draw_box_plot():
     df_box = df_box.drop(['month_i'], axis=1)
 
     # Draw box plots (using Seaborn)
-    # print(df_box.head())
     fig, ax = plt.subplots(1,2, figsize=(15,5), dpi=200)
     sns.boxplot(x='year', y='value', data=df_box, ax=ax[0])
     ax[0].set_xlabel('Year')
